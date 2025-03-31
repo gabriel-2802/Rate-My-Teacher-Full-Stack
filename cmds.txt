@@ -1,0 +1,3 @@
+docker exec -it postgres-db psql -U user -d mydb
+docker-compose down -v
+
