@@ -31,14 +31,15 @@ public class User {
     @Column(name = "profile_picture")
     private byte[] profilePicture;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(
             name = "user_roles",
-            joinColumns = @JoinColumn(name= "user_id"),
-            inverseJoinColumns = @JoinColumn(name= "role_id")
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     @JsonIgnore
     private Set<Role> roles;
+
 
     @JsonIgnore
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)

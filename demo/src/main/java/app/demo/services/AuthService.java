@@ -5,15 +5,16 @@ import app.demo.dto.LoginDTO;
 import app.demo.dto.RegisterDTO;
 import app.demo.entities.Role;
 import app.demo.entities.User;
+import app.demo.exceptions.ExistingEmailException;
+import app.demo.exceptions.ExistingUsernameException;
+import app.demo.exceptions.ResourceNotFoundException;
 import app.demo.repositories.RoleRepository;
 import app.demo.repositories.UserRepository;
 import app.demo.security.JWTGenerator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,45 +32,40 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JWTGenerator jwtGenerator;
 
-    public ResponseEntity<String> register(RegisterDTO registerDTO) {
+    public void register(RegisterDTO registerDTO) throws ExistingUsernameException, ExistingEmailException, ResourceNotFoundException {
+
         if (userRepository.findByUsername(registerDTO.getUsername()).isPresent()) {
-            return ResponseEntity.badRequest().body("Username already exists");
+            throw new ExistingUsernameException("Username '" + registerDTO.getUsername() + "' already exists");
         }
 
         if (userRepository.findByEmail(registerDTO.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body("Email already exists");
+            throw new ExistingEmailException("Email '" + registerDTO.getEmail() + "' already exists");
         }
 
         User user = new User();
         user.setUsername(registerDTO.getUsername());
         user.setEmail(registerDTO.getEmail());
         user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
-        Optional<Role> role = roleRepository.findByAuthority("ROLE_USER");
-        if (role.isPresent()) {
-            user.setRoles(Set.of(role.get()));
-        } else {
-            return ResponseEntity.badRequest().body("Role not found");
-        }
+
+        Role role = roleRepository.findByAuthority("ROLE_USER")
+                .orElseThrow(() -> new ResourceNotFoundException("Default role not found"));
+
+        user.setRoles(Set.of(role));
         userRepository.save(user);
-        return ResponseEntity.ok("User registered successfully");
     }
 
-    public ResponseEntity<AuthDTO> login(LoginDTO loginDTO) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            loginDTO.getUsername(),
-                            loginDTO.getPassword()
-                    )
-            );
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            String jwt = jwtGenerator.generateToken(authentication);
-            return ResponseEntity.ok(new AuthDTO(jwt));
-        } catch (AuthenticationException e) {
-            return ResponseEntity.badRequest().body(new AuthDTO("Invalid credentials"));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new AuthDTO("An error occurred: " + e.getMessage()));
-        }
+    public AuthDTO login(LoginDTO loginDTO) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginDTO.getUsername(),
+                        loginDTO.getPassword()
+                )
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String jwt = jwtGenerator.generateToken(authentication);
+        return new AuthDTO(jwt);
     }
+
 }
