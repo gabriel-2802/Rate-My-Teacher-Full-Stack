@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.persistence.Entity;
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 @Inheritance(strategy = InheritanceType.JOINED)
 @Entity
@@ -16,6 +18,7 @@ public abstract class Review {
 
     private Double rating;
     private String content;
+    private Date createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "author_id", nullable = false)

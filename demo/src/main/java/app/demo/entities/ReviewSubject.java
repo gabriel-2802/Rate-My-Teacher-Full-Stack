@@ -21,5 +21,4 @@ public abstract class ReviewSubject {
 
     @OneToMany(mappedBy = "reviewSubject", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
-
 }
