@@ -1,6 +1,7 @@
 package app.demo.services;
 
 import app.demo.dto.ReviewDTO;
+import app.demo.dto.UserDTO;
 import app.demo.entities.Review;
 import app.demo.entities.ReviewSubject;
 import app.demo.exceptions.ReviewNotFoundException;
@@ -23,6 +24,36 @@ public class ReviewSubjectService {
 
     public List<ReviewDTO> getAllReviews() {
         List<Review> allReviews = reviewSubjectRepository.findAll();
+        return reviewMapper.toDTO(allReviews);
+    }
+
+    public List<ReviewDTO> getAllReviewsForUser(Long userId) {
+        List<Review> allReviews = reviewSubjectRepository.findAll()
+                .stream()
+                .filter(review -> review.getAuthor().getId().equals(userId))
+                .filter(Review::isApproved)
+                .toList();
+
+        return reviewMapper.toDTO(allReviews);
+    }
+
+    public List<ReviewDTO> getAllReviewsForUniversity(Long universityId) {
+        List<Review> allReviews = reviewSubjectRepository.findAll()
+                .stream()
+                .filter(review -> review.getReviewSubject().getId().equals(universityId))
+                .filter(Review::isApproved)
+                .toList();
+
+        return reviewMapper.toDTO(allReviews);
+    }
+
+    public List<ReviewDTO> getAllReviewsForTeacher(Long teacherId) {
+        List<Review> allReviews = reviewSubjectRepository.findAll()
+                .stream()
+                .filter(review -> review.getReviewSubject().getId().equals(teacherId))
+                .filter(Review::isApproved)
+                .toList();
+
         return reviewMapper.toDTO(allReviews);
     }
 
