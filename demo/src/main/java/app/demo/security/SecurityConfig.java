@@ -1,9 +1,9 @@
 package app.demo.security;
 
-import app.demo.entities.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -29,23 +29,64 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(sessionManagement ->
-                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .anyRequest().permitAll())
-                .httpBasic(withDefaults())
-                .exceptionHandling(exceptionHandling ->
-                        exceptionHandling.authenticationEntryPoint(jwtAuthEntryPoint));
+
+                        // PUBLIC (no auth)
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/teachers", "/api/teachers/*",
+                                "/api/courses",  "/api/courses/*",
+                                "/api/universities", "/api/universities/*"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/auth/login", "/api/auth/register"
+                        ).permitAll()
+                        .requestMatchers("/").permitAll()
+
+                        // AUTHENTICATED NORMAL USERS
+                        // post reviews + manage their profile
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/teachers/*/reviews",
+                                "/api/courses/*/reviews",
+                                "/api/universities/*/reviews"
+                        ).authenticated()
+                        .requestMatchers(HttpMethod.PUT,  "/api/profile").authenticated()
+                        .requestMatchers(HttpMethod.GET,  "/api/profile").authenticated()
+
+                        // ADMIN ONLY
+                        // create/update/delete teachers/courses/universities + view stats
+                        .requestMatchers("/api/admin/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/teachers",
+                                "/api/courses",
+                                "/api/universities"
+                        ).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,
+                                "/api/teachers/*",
+                                "/api/courses/*",
+                                "/api/universities/*"
+                        ).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,
+                                "/api/teachers/*",
+                                "/api/courses/*",
+                                "/api/universities/*"
+                        ).hasRole("ADMIN")
+                        .requestMatchers("/api/admin/statistics").hasRole("ADMIN")
+
+                        // ANYTHING ELSE DENY
+                        .anyRequest().denyAll()
+                )
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthEntryPoint))
+                .httpBasic(withDefaults());
 
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration cfg) throws Exception {
+        return cfg.getAuthenticationManager();
     }
 
     @Bean

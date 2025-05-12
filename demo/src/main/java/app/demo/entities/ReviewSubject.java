@@ -21,4 +21,14 @@ public abstract class ReviewSubject {
 
     @OneToMany(mappedBy = "reviewSubject", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
+
+    public Double calculateRating() {
+        Double sum = 0.0;
+        for (Review review : reviews) {
+            if (review.isApproved()) {
+                sum += review.getRating();
+            }
+        }
+        return sum / reviews.size();
+    }
 }

@@ -2,11 +2,14 @@ package app.demo.entities;
 
 
 import jakarta.persistence.*;
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "universities")
+@Data
 public class University extends ReviewSubject {
     private String city;
 
