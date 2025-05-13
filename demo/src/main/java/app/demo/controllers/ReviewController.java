@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin/reviews")
+@RequestMapping("/api/reviews")
 public class ReviewController {
     final ReviewSubjectService reviewSubjectService;
 
@@ -19,22 +19,23 @@ public class ReviewController {
         this.reviewSubjectService = reviewSubjectService;
     }
 
-    @GetMapping("/{userId}")
-    @PreAuthorize("isAuthenticated()")
+    // Use proper path variable names to distinguish between endpoints
+    @GetMapping("/user/{userId}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @Transactional
     public ResponseEntity<List<ReviewDTO>> listForUser(@PathVariable Long userId) {
         return ResponseEntity.ok(reviewSubjectService.getAllReviewsForUser(userId));
     }
 
-    @GetMapping("/{universityId}")
-    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/university/{universityId}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @Transactional
     public ResponseEntity<List<ReviewDTO>> listForUniversity(@PathVariable Long universityId) {
         return ResponseEntity.ok(reviewSubjectService.getAllReviewsForUniversity(universityId));
     }
 
-    @GetMapping("/{teacherId}")
-    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/teacher/{teacherId}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @Transactional
     public ResponseEntity<List<ReviewDTO>> listForTeacher(@PathVariable Long teacherId) {
         return ResponseEntity.ok(reviewSubjectService.getAllReviewsForTeacher(teacherId));
@@ -45,6 +46,13 @@ public class ReviewController {
     @Transactional
     public ResponseEntity<List<ReviewDTO>> list() {
         return ResponseEntity.ok(reviewSubjectService.getAllReviews());
+    }
+
+    @GetMapping("/pending")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public ResponseEntity<List<ReviewDTO>> getPendingReviews() {
+        return ResponseEntity.ok(reviewSubjectService.getPendingReviews());
     }
 
     @PutMapping("/{reviewId}/approve")

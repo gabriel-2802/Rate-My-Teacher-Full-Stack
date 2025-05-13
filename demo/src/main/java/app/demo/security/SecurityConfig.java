@@ -36,42 +36,44 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,
                                 "/api/teachers", "/api/teachers/*",
                                 "/api/courses",  "/api/courses/*",
-                                "/api/universities", "/api/universities/*"
-                        ).permitAll()
+                                "/api/universities", "/api/universities/*").permitAll()
                         .requestMatchers(HttpMethod.POST,
-                                "/api/auth/login", "/api/auth/register"
-                        ).permitAll()
+                                "/api/auth/login", "/api/auth/register").permitAll()
                         .requestMatchers("/").permitAll()
 
                         // AUTHENTICATED NORMAL USERS
-                        // post reviews + manage their profile
+                        // post reviews + view reviews + manage their profile
                         .requestMatchers(HttpMethod.POST,
                                 "/api/teachers/*/reviews",
                                 "/api/courses/*/reviews",
-                                "/api/universities/*/reviews"
-                        ).authenticated()
-                        .requestMatchers(HttpMethod.PUT,  "/api/profile").authenticated()
-                        .requestMatchers(HttpMethod.GET,  "/api/profile").authenticated()
+                                "/api/universities/*/reviews").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/reviews/user/*",
+                                "/api/reviews/teacher/*",
+                                "/api/reviews/university/*").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT,  "/api/profile").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET,  "/api/profile").hasAnyRole("USER", "ADMIN")
 
                         // ADMIN ONLY
                         // create/update/delete teachers/courses/universities + view stats
-                        .requestMatchers("/api/admin/**")
-                        .hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST,
                                 "/api/teachers",
                                 "/api/courses",
-                                "/api/universities"
-                        ).hasRole("ADMIN")
+                                "/api/universities").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT,
                                 "/api/teachers/*",
                                 "/api/courses/*",
-                                "/api/universities/*"
-                        ).hasRole("ADMIN")
+                                "/api/universities/*",
+                                "/api/reviews/*/approve").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE,
                                 "/api/teachers/*",
                                 "/api/courses/*",
-                                "/api/universities/*"
-                        ).hasRole("ADMIN")
+                                "/api/universities/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/reviews",
+                                "/api/reviews/pending",
+                                "/api/admin/users/**").hasRole("ADMIN")
                         .requestMatchers("/api/admin/statistics").hasRole("ADMIN")
 
                         // ANYTHING ELSE DENY

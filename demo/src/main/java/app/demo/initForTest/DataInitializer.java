@@ -42,23 +42,24 @@ public class DataInitializer {
         Role userRole = roleRepository.findByAuthority("ROLE_USER")
                 .orElseThrow(() -> new RuntimeException("ROLE_USER not found in DB"));
 
-        // Initialize admin user
-        if (userRepository.findByUsername("gabriel").isEmpty()) {
+        // Initialize normal user
+//        Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJNYXJpb1VzZXIiLCJyb2xlcyI6IlJPTEVfVVNFUiIsImlhdCI6MTc0NzE1MjkzOSwiZXhwIjoxNzQ3NzU3NzM5fQ.bDPARtUePGX2c-Xb-fjUP-JX2WrQGbd9ca5FZ1RT0DQnjwhWOxLgn9VX6h43mPMuK_aXlPUnRGtxI65KZCAmsQ
+        if (userRepository.findByUsername("MarioUser").isEmpty()) {
             User admin = new User();
-            admin.setUsername("gabriel");
-            admin.setPassword(passwordEncoder.encode("gabriel"));
-            admin.setEmail("gabriel@example.com");
-            admin.setRoles(new HashSet<>(Set.of(adminRole)));
+            admin.setUsername("MarioUser");
+            admin.setPassword(passwordEncoder.encode("MarioUser"));
+            admin.setEmail("mario@user.ro");
+            admin.setRoles(new HashSet<>(Set.of(userRole)));
             userRepository.save(admin);
         }
 
-        // Initialize normal user
-        if (userRepository.findByUsername("mario").isEmpty()) {
+//    Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJNYXJpb0Jvc3MiLCJyb2xlcyI6IlJPTEVfVVNFUiIsImlhdCI6MTc0NzE0NTM1MCwiZXhwIjoxNzQ3NzUwMTUwfQ.hJ7bwTmvU9pbTgiSFNrlBgi_pNAu-7fE9HhMmT13DKD2F3AFTJuTJIVj_LPsOvIIi_h6aiHAWVPMCZOzngYHdg
+        if (userRepository.findByUsername("MarioBoss").isEmpty()) {
             User user = new User();
-            user.setUsername("mario");
-            user.setPassword(passwordEncoder.encode("mario"));
-            user.setEmail("mario@example.com");
-            user.setRoles(new HashSet<>(Set.of(userRole)));
+            user.setUsername("MarioBoss");
+            user.setPassword(passwordEncoder.encode("MarioBoss"));
+            user.setEmail("mario@email.ro");
+            user.setRoles(new HashSet<>(Set.of(adminRole)));
             userRepository.save(user);
         }
     }

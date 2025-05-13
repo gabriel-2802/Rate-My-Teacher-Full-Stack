@@ -4,13 +4,16 @@ import app.demo.dto.ReviewDTO;
 import app.demo.dto.UniversityDTO;
 import app.demo.entities.Review;
 import app.demo.entities.University;
+import app.demo.entities.User;
 import app.demo.exceptions.UniversityNotFoundException;
 import app.demo.mappers.ReviewMapper;
 import app.demo.mappers.UniversityMapper;
 import app.demo.repositories.UniversityRepository;
 import app.demo.repositories.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -66,24 +69,26 @@ public class UniversityService {
         universityRepository.deleteById(id);
     }
 
+    @Transactional
     public ReviewDTO addReview(Long universityId, ReviewDTO reviewDTO, String username) throws UniversityNotFoundException {
-        University university = null;
-        university = universityRepository.findById(universityId)
-                    .orElseThrow(() -> new UniversityNotFoundException("UniversityDTO addReview"));
+        University university = universityRepository.findById(universityId)
+                .orElseThrow(() -> new UniversityNotFoundException("UniversityDTO addReview"));
 
-        userRepository.findByUsername(username)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
 
-        Review review = reviewMapper.toEntity(reviewDTO);
-        review.setCreatedAt(review.getCreatedAt());
-        review.setAuthor(userRepository.findByUsername(username).get());
+        var review = reviewMapper.toEntity(reviewDTO);
+        review.setCreatedAt(new Date());
+        review.setAuthor(user);
         review.setReviewSubject(university);
         review.setApproved(false);
 
         university.getReviews().add(review);
-
+        
+        // Save and flush to ensure ID is generated
         universityRepository.save(university);
-
+        universityRepository.flush();
+        
         return reviewMapper.toDTO(review);
     }
 }

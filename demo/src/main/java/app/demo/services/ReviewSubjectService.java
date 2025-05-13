@@ -27,6 +27,15 @@ public class ReviewSubjectService {
         return reviewMapper.toDTO(allReviews);
     }
 
+    public List<ReviewDTO> getPendingReviews() {
+        List<Review> pendingReviews = reviewSubjectRepository.findAll()
+                .stream()
+                .filter(review -> !review.isApproved())
+                .toList();
+
+        return reviewMapper.toDTO(pendingReviews);
+    }
+
     public List<ReviewDTO> getAllReviewsForUser(Long userId) {
         List<Review> allReviews = reviewSubjectRepository.findAll()
                 .stream()

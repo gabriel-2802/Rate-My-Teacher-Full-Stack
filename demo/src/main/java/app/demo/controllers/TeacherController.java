@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -52,6 +53,7 @@ public class TeacherController {
     // Authenticated users
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/reviews")
+    @Transactional
     public ResponseEntity<ReviewDTO> addReview(
             @PathVariable Long id,
             @RequestBody @Valid ReviewDTO reviewDTO,
