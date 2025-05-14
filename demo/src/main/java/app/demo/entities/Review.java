@@ -16,7 +16,16 @@ import java.util.Date;
 @Table(name = "reviews")
 public class Review {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableGenerator(
+            name = "global_id_generator",
+            table = "id_sequence",
+            pkColumnName = "entity_name",
+            valueColumnName = "next_id_value",
+            pkColumnValue = "review",
+            initialValue = 30000,
+            allocationSize = 50
+    )
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "global_id_generator")
     @Column(name = "review_id")
     private Long id;
 

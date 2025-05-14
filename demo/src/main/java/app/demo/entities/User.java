@@ -13,7 +13,16 @@ import java.util.Set;
 @Data
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableGenerator(
+            name = "global_id_generator",
+            table = "id_sequence",
+            pkColumnName = "entity_name",
+            valueColumnName = "next_id_value",
+            pkColumnValue = "user",
+            initialValue = 20000,
+            allocationSize = 50
+    )
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "global_id_generator")
     @Column(name = "user_id")
     private Long id;
 

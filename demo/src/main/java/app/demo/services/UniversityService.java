@@ -56,6 +56,7 @@ public class UniversityService {
         university.setName(universityDTO.getName());
         university.setRating(universityDTO.getRating());
         university.setProfilePicture(universityDTO.getProfilePicture());
+        university.setCity(universityDTO.getCity());
 
         University updated = universityRepository.save(university);
         return universityMapper.toDTO(updated);

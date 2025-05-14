@@ -1,6 +1,5 @@
 package app.demo.entities;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -13,9 +12,19 @@ import java.util.List;
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class ReviewSubject {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "review_subject_generator")
+    @TableGenerator(
+            name = "review_subject_generator",
+            table = "id_sequence",
+            pkColumnName = "entity_name",
+            valueColumnName = "next_id_value",
+            pkColumnValue = "review_subject",
+            initialValue = 10000,
+            allocationSize = 50
+    )
     @Column(name = "review_subject_id")
     private Long id;
+
     private String name;
     private Double rating;
 

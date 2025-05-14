@@ -76,6 +76,7 @@ public class UniversityController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
+    @Transactional
     public ResponseEntity<UniversityDTO> update(@PathVariable Long id, @RequestBody UniversityDTO universityDTO) {
         try {
             UniversityDTO university = universityService.updateUniversity(id, universityDTO);

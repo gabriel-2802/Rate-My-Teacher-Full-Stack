@@ -76,4 +76,20 @@ public class ReviewSubjectService {
 
         return reviewMapper.toDTO(reviewSubjectRepository.save(review));
     }
+
+    public ReviewDTO refuseReview(Long reviewId) throws ReviewNotFoundException {
+        Review review = reviewSubjectRepository.findById(reviewId)
+                .orElseThrow(() -> new ReviewNotFoundException("review not found"));
+
+        reviewSubjectRepository.delete(review);
+
+        try {
+            ReviewSubject subject = review.getReviewSubject();
+            subject.getReviews().remove(review);
+        } catch (Exception ignored) {
+
+        }
+
+        return reviewMapper.toDTO(review);
+    }
 }

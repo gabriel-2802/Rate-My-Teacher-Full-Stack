@@ -19,7 +19,6 @@ public class ReviewController {
         this.reviewSubjectService = reviewSubjectService;
     }
 
-    // Use proper path variable names to distinguish between endpoints
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @Transactional
@@ -67,5 +66,17 @@ public class ReviewController {
         }
 
         return ResponseEntity.ok(approved);
+    }
+
+    @DeleteMapping("/{reviewId}/refuse")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public ResponseEntity<Void> refuse(@PathVariable Long reviewId) {
+        try {
+            ReviewDTO refused = reviewSubjectService.refuseReview(reviewId);
+            return ResponseEntity.ok().build();
+        } catch (ReviewNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

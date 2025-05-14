@@ -79,6 +79,7 @@ public class TeacherController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
+    @Transactional
     public ResponseEntity<TeacherDTO> update(@PathVariable Long id, @RequestBody TeacherDTO dto) {
         try {
             var t = teacherService.updateTeacher(id, dto);
