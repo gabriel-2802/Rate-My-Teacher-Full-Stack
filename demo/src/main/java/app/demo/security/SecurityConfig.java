@@ -42,7 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/").permitAll()
 
                         // AUTHENTICATED NORMAL USERS
-                        // post reviews + view reviews + manage their profile
+                        // post reviews + view reviews + manage their profile + delete own reviews
                         .requestMatchers(HttpMethod.POST,
                                 "/api/teachers/*/reviews",
                                 "/api/courses/*/reviews",
@@ -53,6 +53,8 @@ public class SecurityConfig {
                                 "/api/reviews/university/*").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.PUT,  "/api/profile").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.GET,  "/api/profile").hasAnyRole("USER", "ADMIN")
+                        // Allow users to delete their own reviews (validation happens in service layer)
+                        .requestMatchers(HttpMethod.DELETE, "/api/reviews/*").hasAnyRole("USER", "ADMIN")
 
                         // ADMIN ONLY
                         // create/update/delete teachers/courses/universities + view stats
@@ -69,6 +71,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE,
                                 "/api/teachers/*",
                                 "/api/courses/*",
+                                "/api/reviews/*/refuse",
                                 "/api/universities/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET,
                                 "/api/reviews",

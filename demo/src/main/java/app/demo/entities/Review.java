@@ -34,7 +34,7 @@ public class Review {
     private Date createdAt;
 
     @Column(name = "is_approved", nullable = false)
-    private boolean isApproved;
+    private boolean isApproved = false;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "author_id", nullable = false)

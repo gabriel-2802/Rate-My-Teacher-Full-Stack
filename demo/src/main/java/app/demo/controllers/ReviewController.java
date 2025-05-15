@@ -9,6 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import java.nio.file.AccessDeniedException;
 
 @RestController
 @RequestMapping("/api/reviews")
@@ -77,6 +81,22 @@ public class ReviewController {
             return ResponseEntity.ok().build();
         } catch (ReviewNotFoundException e) {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{reviewId}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @Transactional
+    public ResponseEntity<Void> deleteReview(
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            reviewSubjectService.deleteReviewIfAuthorized(reviewId, userDetails.getUsername());
+            return ResponseEntity.ok().build();
+        } catch (ReviewNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }
 }

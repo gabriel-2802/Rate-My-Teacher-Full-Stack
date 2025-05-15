@@ -4,10 +4,14 @@ import app.demo.dto.ReviewDTO;
 import app.demo.dto.UserDTO;
 import app.demo.entities.Review;
 import app.demo.entities.ReviewSubject;
+import app.demo.entities.User;
 import app.demo.exceptions.ReviewNotFoundException;
 import app.demo.mappers.ReviewMapper;
 import app.demo.repositories.ReviewSubjectRepository;
+import app.demo.repositories.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,11 +19,14 @@ import java.util.List;
 public class ReviewSubjectService {
     private final ReviewSubjectRepository reviewSubjectRepository;
     private final ReviewMapper reviewMapper;
+    private final UserRepository userRepository;
 
     public ReviewSubjectService(ReviewSubjectRepository reviewSubjectRepository,
-                                ReviewMapper reviewMapper) {
+                                ReviewMapper reviewMapper,
+                                UserRepository userRepository) {
         this.reviewSubjectRepository = reviewSubjectRepository;
         this.reviewMapper = reviewMapper;
+        this.userRepository = userRepository;
     }
 
     public List<ReviewDTO> getAllReviews() {
@@ -91,5 +98,41 @@ public class ReviewSubjectService {
         }
 
         return reviewMapper.toDTO(review);
+    }
+
+    @Transactional
+    public void deleteReviewIfAuthorized(Long reviewId, String username)
+            throws ReviewNotFoundException, AccessDeniedException {
+        Review review = reviewSubjectRepository.findById(reviewId)
+                .orElseThrow(() -> new ReviewNotFoundException("Review not found with ID: " + reviewId));
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+
+
+        if (!review.isApproved() && user.getRoles().stream().noneMatch(role -> role.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new AccessDeniedException("User is not authorized to delete this review");
+        }
+
+        if (review.getAuthor().getId().equals(user.getId()) ||
+                user.getRoles().stream().anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"))) {
+
+            ReviewSubject subject = review.getReviewSubject();
+            subject.getReviews().remove(review);
+
+            reviewSubjectRepository.delete(review);
+
+            if (subject.getReviews().stream().anyMatch(Review::isApproved)) {
+                subject.setRating(subject.calculateRating());
+            } else {
+                if (subject.getReviews().isEmpty()) {
+                    subject.setRating(0.0);
+                } else {
+                    subject.setRating(subject.calculateRating());
+                }
+            }
+        } else {
+            throw new AccessDeniedException("User is not authorized to delete this review");
+        }
     }
 }

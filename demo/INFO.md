@@ -580,10 +580,21 @@ http://localhost:8080
 ```
 
 #### 8.7 Refuse Review
+**DELETE** `/api/reviews/{id}/refuse`
+
+**Example:** `/api/reviews/1/refuse`
+
+**(Requires ADMIN token)**
+
+**Response:** HTTP 200 OK or HTTP 404 Not Found or HTTP 401 Unauthorized
+
+#### 8.8 Delete Review if User is the Author or ADMIN
+
 **DELETE** `/api/reviews/{id}`
 
 **Example:** `/api/reviews/1`
 
-**(Requires ADMIN token)**
+**(Requires AUTHOR USER or ADMIN token)**
 
-**Response:** HTTP 200 OK or HTTP 404 Not Found
+**Response:** HTTP 200 OK or HTTP 404 Not Found or HTTP 401 Unauthorized
+
