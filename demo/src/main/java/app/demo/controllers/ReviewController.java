@@ -12,7 +12,6 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import java.nio.file.AccessDeniedException;
 
 @RestController
 @RequestMapping("/api/reviews")
