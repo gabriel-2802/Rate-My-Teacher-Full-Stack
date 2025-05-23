@@ -26,6 +26,7 @@ public class UniversityController {
     }
 
     // Public for every user
+    @Transactional
     @GetMapping
     public List<UniversityDTO> list(@RequestParam(value = "name", required = false) String name) {
         if (name == null) {
@@ -43,6 +44,26 @@ public class UniversityController {
     public ResponseEntity<UniversityDTO> get(@PathVariable Long id) {
         try {
             UniversityDTO university = universityService.getUniversity(id);
+            return ResponseEntity.ok(university);
+        } catch (UniversityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @Transactional
+    @GetMapping("/search")
+    public ResponseEntity<List<UniversityDTO>> searchUniversities(@RequestParam String name) {
+        List<UniversityDTO> universities = universityService.searchUniversitiesByName(name);
+        if (universities.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(universities);
+    }
+
+    @GetMapping("/name/{name}")
+    public ResponseEntity<UniversityDTO> getByName(@PathVariable String name) {
+        try {
+            UniversityDTO university = universityService.getUniversityByName(name);
             return ResponseEntity.ok(university);
         } catch (UniversityNotFoundException e) {
             return ResponseEntity.notFound().build();

@@ -50,6 +50,11 @@ public class TeacherService {
         return teacherMapper.toDTO(teacher);
     }
 
+    public List<TeacherDTO> searchTeachersByName(String name) {
+        List<Teacher> teachers = teacherRepository.findByNameContainingIgnoreCase(name);
+        return teacherMapper.toDTOList(teachers);
+    }
+
     public TeacherDTO createTeacher(TeacherDTO teacherDTO) {
         Teacher teacher = teacherMapper.toEntity(teacherDTO);
         Teacher saved = teacherRepository.save(teacher);

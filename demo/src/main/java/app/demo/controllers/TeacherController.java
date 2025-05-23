@@ -50,6 +50,25 @@ public class TeacherController {
         }
     }
 
+    @GetMapping("/name/{name}")
+    public ResponseEntity<TeacherDTO> getByName(@PathVariable String name) {
+        try {
+            TeacherDTO teacher = teacherService.getTeacherByName(name);
+            return ResponseEntity.ok(teacher);
+        } catch (TeacherNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<TeacherDTO>> searchTeachers(@RequestParam String name) {
+        List<TeacherDTO> teachers = teacherService.searchTeachersByName(name);
+        if (teachers.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(teachers);
+    }
+
     // Authenticated users
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/reviews")

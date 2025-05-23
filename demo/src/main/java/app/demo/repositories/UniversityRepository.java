@@ -19,4 +19,9 @@ public interface UniversityRepository extends JpaRepository<University, Long> {
     Optional<University> findById(Long id);
     boolean existsByName(String name);
     boolean existsById(Long id);
+
+    University getByName(String name);
+
+    @Query("SELECT u FROM University u WHERE LOWER(u.name) LIKE LOWER(CONCAT('%', :name, '%'))")
+    List<University> findByNameContainingIgnoreCase(@Param("name") String name);
 }

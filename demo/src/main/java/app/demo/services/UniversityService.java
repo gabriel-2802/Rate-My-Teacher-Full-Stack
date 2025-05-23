@@ -42,6 +42,12 @@ public class UniversityService {
                 .orElseThrow(() -> new UniversityNotFoundException("UniversityDTO getUniversity")));
     }
 
+    @Transactional
+    public UniversityDTO getUniversityByName(String name) throws UniversityNotFoundException {
+        return universityMapper.toDTO(universityRepository.findByName(name)
+                .orElseThrow(() -> new UniversityNotFoundException("UniversityDTO getUniversity")));
+    }
+
     public UniversityDTO createUniversity(UniversityDTO universityDTO) {
         return universityMapper
                         .toDTO(universityRepository
@@ -91,5 +97,11 @@ public class UniversityService {
         universityRepository.flush();
         
         return reviewMapper.toDTO(review);
+    }
+
+    @Transactional
+    public List<UniversityDTO> searchUniversitiesByName(String name) {
+        List<University> universities = universityRepository.findByNameContainingIgnoreCase(name);
+        return universityMapper.toDTOList(universities);
     }
 }
